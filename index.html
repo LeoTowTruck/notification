@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>簡單通知</title>
+  <link rel="manifest" href="/manifest.json">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js"></script>
+</head>
+<body>
+  <h1>簡單通知測試</h1>
+  <button onclick="subscribe()">訂閱通知</button>
+  <p id="status">狀態：未訂閱</p>
+
+  <script>
+    // Firebase 配置（從 Firebase 主控台取得）
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD7VW3vOlGQUCzf4wJy24BtRR-tLxTnT7I",
+  authDomain: "towing-d99da.firebaseapp.com",
+  databaseURL: "https://towing-d99da-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "towing-d99da",
+  storageBucket: "towing-d99da.appspot.com",
+  messagingSenderId: "977746503781",
+  appId: "1:977746503781:web:3d7acb3d08c8e71c13fe8c"
+};
+
+    // 初始化 Firebase
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    // 訂閱通知
+    function subscribe() {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          messaging.getToken({ serviceWorkerRegistration: navigator.serviceWorker })
+            .then(token => {
+              document.getElementById('status').innerText = '已訂閱！Token: ' + token;
+              console.log('FCM Token:', token);
+              // 你可以手動複製這個 Token 用於測試
+            })
+            .catch(err => {
+              document.getElementById('status').innerText = '訂閱失敗: ' + err.message;
+            });
+        } else {
+          document.getElementById('status').innerText = '通知被拒絕';
+        }
+      });
+    }
+
+    // 註冊 Service Worker
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+      .then(reg => console.log('Service Worker 註冊成功'))
+      .catch(err => console.log('Service Worker 註冊失敗:', err));
+  </script>
+</body>
+</html>
